@@ -1,5 +1,5 @@
 import random 
-
+rounds = ["префлоп", "флоп", "терн", "ривер"]
 class Dude:
 	__slots__ = ('stack', 'nick')
 
@@ -7,13 +7,13 @@ class Dude:
 		self.stack = stack
 		self.nick = nick
 
-	def bet(self,sum):
-		self.stack -= sum
+	def bet(self,sumalg):
+		self.stack -= sumalg
 
 
 class Table:
 	
-	__slots__ = ('sb', 'bb','bets','folded_bets','lastBet','players', 'dealer','bank','player_cursor',"all_game_money")
+	__slots__ = ('sb', 'bb','bets','folded_score','lastBet','players', 'dealer','bank','player_cursor',"all_game_money","player_bet")
 	
 	def __init__(self, sb):
 		self.bets = []
@@ -22,8 +22,9 @@ class Table:
 		self.sb = sb
 		self.bb = sb * 2
 		self.player_cursor = 0
-		self.folded_bets = []
-		self.all_game_money = []
+		self.folded_score = 0
+		self.all_game_money = 0
+		self.player_bet = 0
 
 	def join_the_game(self,nick,stack):
 		self.players.append(Dude(nick,stack))
@@ -52,6 +53,7 @@ class Table:
 
 	def calc_bank(self):
 		banking = sum(self.bets)
+		banking += self.folded_score
 		return banking
 
 	def bets_are_equal(self):
@@ -64,10 +66,10 @@ class Table:
 	def tableBet(self,player_i,player_bet):
 		self.players[player_i].bet(player_bet)
 		self.bets[player_i] += player_bet
-		self.lastBet = player_bet
-
+		self.lastBet = self.bets[player_i]
+		
 	def someone_fold(self,player_i):
-		self.folded_bets.append(self.bets[player_i])
+		self.folded_score += self.bets[player_i]
 		self.bets.pop(player_i)
 		self.players.pop(player_i)
 
@@ -77,23 +79,23 @@ class Table:
 		else:
 			self.player_cursor = (self.player_cursor + 1) % len(self.players)
 
-	def all_game_money_is():
-		if self.all_game_money = 0:
-			return sum(self.bets)
-
 	def end_bet_round(self):
 		self.all_game_money += self.bets[0] * len(self.players)
+		self.all_game_money += self.folded_score
+		self.bets = []
+		self.folded_score = 0
+		self.lastBet = 0
+		self.make_zero_bets()
 
-		pass
-
-def get_valid_bet(obj,pred_bet,table):
+def get_valid_bet(obj,pred_bet):
 	if pred_bet > obj.players[obj.p_cursor()].stack:
 		print("Вы делаете ставку больше вашего стека. Введите новую")
-		get_valid_bet(obj,int(input()), table.p_cursor())
-	if pred_bet + table.bets[table.p_cursor()] < obj.lastBet:
+		get_valid_bet(obj,int(input()))
+	elif pred_bet + obj.bets[obj.p_cursor()] < obj.lastBet:
 		print("Вы делаете ставку меньше последнего бета. Введите новую")
-		get_valid_bet(obj,int(input()),table.p_cursor())
-	return pred_bet
+		get_valid_bet(obj,int(input()))
+	else:
+		obj.player_bet = pred_bet
 
 
 
@@ -112,44 +114,65 @@ def main():
 			print("Ваш стек слишком маленький")
 			stack = int(input())
 		myTable.join_the_game(nick,stack)
-
+	print("=======Регистрация окончена=======")
 	#print("Игра начинается...")
 	myTable.make_dealer()
 	myTable.make_zero_bets()
-	#print("Button: {}".format(myTable.dealer.nick))
+	print("Button: {}".format(myTable.dealer.nick))
 
 	for round in range(4):
 		if round == 0:
 			#print("Ставим блайнды")
 			myTable.bet_blinds()
 			nn, mm = myTable.whose_blind()
-			#print("Малый блайнд поставил: {}".format(myTable.players[nn].nick))
-			#print("Большой блайнд поставил: {}".format(myTable.players[mm].nick))
+			print("Малый блайнд поставил: {}".format(myTable.players[nn].nick))
+			print("Большой блайнд поставил: {}".format(myTable.players[mm].nick))
 			myTable.p_cursor(next)
+			myTable.p_cursor(next)
+			myTable.p_cursor(next)
+		print("============{}============".format(rounds[round]))
+		print("Ставку делает: {}".format( myTable.players[myTable.p_cursor()].nick ))
+		print("Последняя ставка: {}".format( myTable.lastBet ) )
+		print("Ваш стек: {}".format(myTable.players[myTable.p_cursor()].stack))
+		if myTable.bets[myTable.p_cursor()]:
+			print("Вы уже до этого делали ставку. Ваш банк короче: {}".format(myTable.bets[myTable.p_cursor()]))
+		print("Введите новую ставку (0 - fold): ",end="")
+		new_bet = int(input())
+		if new_bet != 0:
+			get_valid_bet(myTable,new_bet)
+			myTable.tableBet(myTable.p_cursor(),myTable.player_bet)
+			myTable.p_cursor(next)
+			print("Ставка сделана. Следующий!! ======")
+		else:
+			myTable.someone_fold(myTable.p_cursor())
+			if myTable.p_cursor() >= len(myTable.players):
+				myTable.player_cursor = 0
+			print("Упс... Кто то покину игру... =======")
 
 		while myTable.bets_are_equal() != True:
-			print("Ставку делает: {}".format(myTable.players[myTable.p_cursor()].nick))
-			#print("Текущий банк: {}".format(myTable.calc_bank()))
-			#print("Ваш стек: {}".format(myTable.players[myTable.p_cursor()].stack))
-			print("Ставки: {}".format(myTable.bets))
-			print("Банк: {}".format( myTable.all_game_money_is() ))
-			print("Ваш банк: {}".format(myTable.bets[myTable.p_cursor()]))
+			print("Ставку делает: {}".format( myTable.players[myTable.p_cursor()].nick ))
+			print("Последняя ставка: {}".format( myTable.lastBet ) )
+			print("Ваш стек: {}".format(myTable.players[myTable.p_cursor()].stack))
+			if myTable.bets[myTable.p_cursor()]:
+				print("Вы уже до этого делали ставку. Ваш банк короче: {}".format(myTable.bets[myTable.p_cursor()]))
 			print("Введите новую ставку (0 - fold): ",end="")
 			new_bet = int(input())
 			if new_bet != 0:
-				player_bet = get_valid_bet(myTable,new_bet,myTable)
-				myTable.tableBet(myTable.p_cursor(), player_bet)
+				get_valid_bet(myTable,new_bet)
+				myTable.tableBet(myTable.p_cursor(),myTable.player_bet)
 				myTable.p_cursor(next)
-				print("Ставка в {} принята для игрока {}, ваш банк теперь: {}".format(new_bet,myTable.players[myTable.p_cursor()].nick,myTable.bets[myTable.p_cursor()]))
+				print("Ставка сделана. Следующий!! ======")
 			else:
 				myTable.someone_fold(myTable.p_cursor())
 				if myTable.p_cursor() >= len(myTable.players):
 					myTable.player_cursor = 0
-			print("BETS ARE EQUAL? {}".format(myTable.bets))
+				print("Упс... Кто то покину игру... =======")
+				#todo: баг возможно
+
 		if len(myTable.players) == 1:
-			print("Победил: {}, все остальные фолднули".format(myTable.players[0]))
+			print("Победил: {}, все остальные фолднули".format(myTable.players[0].nick))
 			exit()
-		print("Конец раунда")
+		print("Конец раунда. Общий банк: {}".format(myTable.calc_bank()))
 		myTable.end_bet_round()
 
 
