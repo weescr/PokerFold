@@ -13,7 +13,7 @@ class Dude:
 
 class Table:
 	
-	__slots__ = ('sb', 'bb','bets','folded_score','lastBet','players', 'dealer','bank','player_cursor',"all_game_money","player_bet")
+	__slots__ = ('sb', 'bb','bets','folded_score','lastBet','players', 'dealer','bank','player_cursor',"all_game_money","player_bet","all_in")
 	
 	def __init__(self, sb):
 		self.bets = []
@@ -25,6 +25,7 @@ class Table:
 		self.folded_score = 0
 		self.all_game_money = 0
 		self.player_bet = 0
+		self.all_in = False
 
 	def join_the_game(self,nick,stack):
 		self.players.append(Dude(nick,stack))
@@ -67,6 +68,8 @@ class Table:
 		self.players[player_i].bet(player_bet)
 		self.bets[player_i] += player_bet
 		self.lastBet = self.bets[player_i]
+		if self.players[self.player_cursor].stack == 0:
+			self.all_in = True
 		
 	def someone_fold(self,player_i):
 		self.folded_score += self.bets[player_i]
@@ -79,17 +82,28 @@ class Table:
 		else:
 			self.player_cursor = (self.player_cursor + 1) % len(self.players)
 
+	def call_fold(self,p_answ):
+		try:
+			p_answ.index("fold")
+			return False
+		except:
+			return True
+
+
 	def end_bet_round(self):
 		self.all_game_money += self.bets[0] * len(self.players)
 		self.all_game_money += self.folded_score
 		self.bets = []
 		self.folded_score = 0
 		self.lastBet = 0
+		self.all_in = False
 		self.make_zero_bets()
+
+
 
 def get_valid_bet(obj,pred_bet):
 	if pred_bet > obj.players[obj.p_cursor()].stack:
-		print("Вы делаете ставку больше вашего стека. Введите новую")
+		print("Вы             ставку больше вашего стека. Введите новую")
 		get_valid_bet(obj,int(input()))
 	elif pred_bet + obj.bets[obj.p_cursor()] < obj.lastBet:
 		print("Вы делаете ставку меньше последнего бета. Введите новую")
@@ -155,19 +169,34 @@ def main():
 			print("Ваш стек: {}".format(myTable.players[myTable.p_cursor()].stack))
 			if myTable.bets[myTable.p_cursor()]:
 				print("Вы уже до этого делали ставку. Ваш банк короче: {}".format(myTable.bets[myTable.p_cursor()]))
-			print("Введите новую ставку (0 - fold): ",end="")
-			new_bet = int(input())
-			if new_bet != 0:
-				get_valid_bet(myTable,new_bet)
-				myTable.tableBet(myTable.p_cursor(),myTable.player_bet)
-				myTable.p_cursor(next)
-				print("Ставка сделана. Следующий!! ======")
+			#todo: all in
+			print("all_in: {}".format(myTable.all_in))
+			if myTable.all_in:
+				print("Предыдущий игрок сделал олл ин. Вам остается только коллить или фолдить. call / fold?")
+				answ = myTable.call_fold(input())
+				if answ: # call
+					myTable.tableBet(myTable.p_cursor(),myTable.bets[ (myTable.p_cursor() - 1) % len(myTable.players) ])
+					myTable.p_cursor(next)
+					print("Вы пошли олл-ин! ========")
+				else: # fold
+					myTable.someone_fold(myTable.p_cursor())
+					if myTable.p_cursor() >= len(myTable.players):
+						myTable.player_cursor = 0
+					print("Упс... Он не соглаислся ставить олл-ин... ======")
 			else:
-				myTable.someone_fold(myTable.p_cursor())
-				if myTable.p_cursor() >= len(myTable.players):
-					myTable.player_cursor = 0
-				print("Упс... Кто то покину игру... =======")
-				#todo: баг возможно
+				print("Введите новую ставку (0 - fold): ",end="")
+				new_bet = int(input())
+				if new_bet != 0:
+					get_valid_bet(myTable,new_bet)
+					myTable.tableBet(myTable.p_cursor(),myTable.player_bet)
+					myTable.p_cursor(next)
+					print("Ставка сделана. Следующий!! ======")
+				else:
+					myTable.someone_fold(myTable.p_cursor())
+					if myTable.p_cursor() >= len(myTable.players):
+						myTable.player_cursor = 0
+					print("Упс... Кто то покину игру... =======")
+					#todo: баг возможно
 
 		if len(myTable.players) == 1:
 			print("Победил: {}, все остальные фолднули".format(myTable.players[0].nick))
