@@ -38,19 +38,16 @@ class Table:
 		for i in range(len(self.players)):
 			self.bets.append(0)
 
-	def whose_blind(self):
+	def bet_blinds(self):
 		n = self.players.index(self.dealer)
 		sbp = (n + 1) % len(self.players)
 		bbp = (n + 2) % len(self.players)
-		return sbp,bbp
-
-	def bet_blinds(self):
-		n, m = self.whose_blind()
-		self.players[n].bet(self.sb)
-		self.players[m].bet(self.bb)
-		self.bets[n] = self.sb
-		self.bets[m] = self.bb
+		self.players[sbp].bet(self.sb)
+		self.players[bbp].bet(self.bb)
+		self.bets[sbp] = self.sb
+		self.bets[bbp] = self.bb
 		self.lastBet = self.bb
+		return sbp,bbp
 
 	def calc_bank(self):
 		banking = sum(self.bets)
@@ -61,8 +58,7 @@ class Table:
 		if len(list(set(self.bets))) == 1:
 			return True
 		else:
-			#print("bets не экуал т.к len(list(set(self.bets)) == ",len(list(set(self.bets))))
-			return False
+			 return False
 
 	def tableBet(self,player_i,player_bet):
 		self.players[player_i].bet(player_bet)
@@ -103,13 +99,20 @@ class Table:
 
 def get_valid_bet(obj,pred_bet):
 	if pred_bet > obj.players[obj.p_cursor()].stack:
-		print("Вы             ставку больше вашего стека. Введите новую")
+		print("Вы делаете ставку больше вашего стека. Введите новую")
 		get_valid_bet(obj,int(input()))
 	elif pred_bet + obj.bets[obj.p_cursor()] < obj.lastBet:
 		print("Вы делаете ставку меньше последнего бета. Введите новую")
 		get_valid_bet(obj,int(input()))
 	else:
 		obj.player_bet = pred_bet
+
+def reflect_making_bets_process(obj):
+	print("Ставку делает: {}".format(obj.players[obj.p_cursor()].nick ))
+	print("Последняя ставка: {}".format( obj.lastBet ) )
+	print("Ваш стек: {}".format(obj.players[obj.p_cursor()].stack))
+	if obj.bets[obj.p_cursor()]:
+		print("Вы уже до этого делали ставку. Ваш банк короче: {}".format(obj.bets[obj.p_cursor()]))
 
 
 
@@ -129,27 +132,20 @@ def main():
 			stack = int(input())
 		myTable.join_the_game(nick,stack)
 	print("=======Регистрация окончена=======")
-	#print("Игра начинается...")
 	myTable.make_dealer()
 	myTable.make_zero_bets()
 	print("Button: {}".format(myTable.dealer.nick))
 
 	for round in range(4):
 		if round == 0:
-			#print("Ставим блайнды")
-			myTable.bet_blinds()
-			nn, mm = myTable.whose_blind()
+			nn, mm = myTable.bet_blinds()
 			print("Малый блайнд поставил: {}".format(myTable.players[nn].nick))
 			print("Большой блайнд поставил: {}".format(myTable.players[mm].nick))
 			myTable.p_cursor(next)
 			myTable.p_cursor(next)
 			myTable.p_cursor(next)
 		print("============{}============".format(rounds[round]))
-		print("Ставку делает: {}".format( myTable.players[myTable.p_cursor()].nick ))
-		print("Последняя ставка: {}".format( myTable.lastBet ) )
-		print("Ваш стек: {}".format(myTable.players[myTable.p_cursor()].stack))
-		if myTable.bets[myTable.p_cursor()]:
-			print("Вы уже до этого делали ставку. Ваш банк короче: {}".format(myTable.bets[myTable.p_cursor()]))
+		reflect_making_bets_process(myTable)
 		print("Введите новую ставку (0 - fold): ",end="")
 		new_bet = int(input())
 		if new_bet != 0:
@@ -164,11 +160,7 @@ def main():
 			print("Упс... Кто то покину игру... =======")
 
 		while myTable.bets_are_equal() != True:
-			print("Ставку делает: {}".format( myTable.players[myTable.p_cursor()].nick ))
-			print("Последняя ставка: {}".format( myTable.lastBet ) )
-			print("Ваш стек: {}".format(myTable.players[myTable.p_cursor()].stack))
-			if myTable.bets[myTable.p_cursor()]:
-				print("Вы уже до этого делали ставку. Ваш банк короче: {}".format(myTable.bets[myTable.p_cursor()]))
+			reflect_making_bets_process(myTable)
 			#todo: all in
 			print("all_in: {}".format(myTable.all_in))
 			if myTable.all_in:
@@ -195,7 +187,7 @@ def main():
 					myTable.someone_fold(myTable.p_cursor())
 					if myTable.p_cursor() >= len(myTable.players):
 						myTable.player_cursor = 0
-					print("Упс... Кто то покину игру... =======")
+					print("Упс... Кто то покинул игру... =======")
 					#todo: баг возможно
 
 		if len(myTable.players) == 1:
