@@ -25,7 +25,7 @@ class Card{
         std::string display(){
             return cardvalue[this->value] + " " + cardsuit[this->suit];
         }
-        
+        Card() = default;
         Card(char dsuit,char dval){
             this->value = dval;
             this->suit = dsuit;
@@ -34,17 +34,47 @@ class Card{
 
 class Player{
     private:
-        bool dealer=false;
         Card hand_cards[2];
         unsigned int stack{};
         std::string nickname{};
     public:
-        int bet(int newbet){
+        void bet(int newbet){
             this->stack = this->stack - newbet;
         }
-        Player(char newnickname, char newstack){
+        Player(std::string newnickname, char newstack){
             this->stack = newstack;
             this->nickname = newnickname;
-        }
+        };
 };
 
+class Table{
+    private:
+        std::vector<int> bets{};
+        std::vector<Player> players{};
+        unsigned int lastBet=0;
+        int sb=0;
+        int bb = sb * 2;
+        char player_cursor=0;
+        unsigned int folded_score=0;
+        unsigned int all_game_money=0;
+        int player_bet=0;
+        bool all_ined=false;
+        Player dealer;
+    public:
+        void join_the_game(std::string argnick, int argstack ){
+            Player NewPlayer(argnick,argstack);
+            this->players.push_back(NewPlayer); 
+        }
+        void make_dealer(){
+            char index = 0 + rand() % this->players.size();
+            this->dealer = this->players[index];
+        }
+        void make_zero_bets(){
+            for (char i=0; i < this->players.size(); i++){
+                this->bets.push_back(0);
+            };
+        }
+        //void bet_blinds(){
+         //   char n = this->players.index(self.dealer)
+        //}
+};
