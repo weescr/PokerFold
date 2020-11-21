@@ -408,8 +408,6 @@ class Table{
 			return this->dealer.nick;
         }
 		
-       
-		
         auto cardsondesk(){
             return this->desk;
         }

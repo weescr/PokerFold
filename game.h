@@ -34,36 +34,165 @@ class Card{
 
 class Player{
     private:
-        Card hand_cards[2];
+        std::pair<Card,Card> hand_cards{};
         unsigned int stack{};
-        std::string nickname="";
+        
     public:
+        std::string nickname="";    
         void bet(int newbet){
             this->stack = this->stack - newbet;
         }
         std::string name(){
             return this->nickname;
         }
-        void bet(int argbet){
-            this->stack = this->stack - argbet;
+        void take_2_cards(std::pair<Card,Card> argcards){
+            this->hand_cards = argcards;
         }
         int get_stack(){
             return this->stack;
         }
+        std::pair<Card,Card> get_hand_cards(){
+            return this->hand_cards;
+        }
+        Player() = default;
         Player(std::string newnickname, int newstack){
             this->stack = newstack;
             this->nickname = newnickname;
         };
 };
 
+class Combo{
+    private:
+		std::string pre_combo="None";
+        std::vector<Card> cardsondesk_combo{};
+        bool flush=false;
+		short current=0;
+        struct cmp{
+            bool operator() ( Card a,  Card b){return a.get_card_value() <  b.get_card_value();}
+        };
+        struct cmp2{
+            bool operator() ( Card a,  Card b){return a.get_card_suit() <  b.get_card_suit();}
+        };
+        auto range(short a,short b){
+            std::vector<int> x(b);
+            std::iota(std::begin(x), std::end(x), a);
+            return x;
+        };
+        auto values(std::vector<Card> a){
+            std::vector<int> n{};
+            for (short i=0; i < a.size(); i++){
+                n.push_back(a[i].get_card_value());
+            };
+            return n;
+        };
+        auto slice(std::vector<Card> argvec, short from, short to){
+            std::vector<Card>::const_iterator first = argvec.begin() + from;
+            std::vector<Card>::const_iterator last = argvec.begin() + to;
+            return std::vector<Card>(first, last);
+        };
+        auto slice_int(std::vector<int> argvec, short from, short to){
+            std::vector<int>::const_iterator first = argvec.begin() + from;
+            std::vector<int>::const_iterator last = argvec.begin() + to;
+            return std::vector<int>(first, last);
+        };
+        bool thereflush(std::vector<Card> a, int from, int to){
+            std::vector<Card> suits=slice(a,from,to);
+            std::set<Card, cmp2> setted_suit(suits.begin(),suits.end());
+            if (setted_suit.size() == 1){
+                return true;
+            } else {
+                return false;
+            };
+        };
+        bool therestraight(std::vector<Card> a, int from, int to){
+			if (slice_int(values(a),from,to) == range(a[0].get_card_value(),to)){
+                return true;
+            } else {
+				return false;
+			};
+		}
+        
+    public:
+        std::string answer(){
+            std::sort(this->cardsondesk_combo.begin(),this->cardsondesk_combo.end(), [](Card  & a, Card  & b) -> bool{
+                return a.get_card_value() < b.get_card_value(); 
+            });
+            Card minimal_card{this->cardsondesk_combo[0]};
+            std::set<Card, cmp> setted_cards(this->cardsondesk_combo.begin(), this->cardsondesk_combo.end());
+            unsigned long int uniques_length{setted_cards.size()};
+            std::vector<Card> temp(setted_cards.begin(),setted_cards.end());
+            
+			if (uniques_length >= 5){
+                std::vector<int> temp2=values(temp);
+                int l=temp2.size();
+                int l1=temp.size();
+                
+				if (thereflush(temp,l1-5, l1) && temp2[l-1] == 12 && temp2[l-2] == 11 && temp2[l-3] == 10 && temp2[l-4] == 9 && temp2[l-5] == 8){
+					return "Royal Flush";
+                };
+				
+				for (short i=0; i < 3; i++){
+					if (therestraight(temp,0+i,5+i) && thereflush(temp,0+i,5+i)){
+						return "Straight Flush";
+					};
+				}	
+            }
+			
+			if (uniques_length == 4 || uniques_length == 3 || uniques_length == 2){
+				std::vector<int> temp{values(cardsondesk_combo)};
+				if ( std::count(temp.begin(),temp.end(),temp[0]) == 4 || std::count(temp.begin(),temp.end(),temp[1]) == 4 || std::count(temp.begin(),temp.end(),temp[2]) == 4){
+					return "Four of a Kind";
+				};
+					return "Full House";
+			};
+			
+            if (thereflush(temp,0,2) == true || thereflush(temp,1,6) == true || thereflush(temp,2,7) == true){
+                return "Flush";
+            };
+			
+			for (short i=0; i < 3; i++){
+				if (therestraight(temp,0+i,5+i)){
+					return "Straight";
+				};
+			}
+			
+            if (uniques_length == 5){
+                std::vector<int> temp{values(this->cardsondesk_combo)};
+                for(short i=0; i<5; i++){
+                    if (std::count(temp.begin(),temp.end(),temp[i]) == 3){
+                        return "Three of a kind / SET";
+                    };
+                };
+                return "Two Pairs";
+            };
+			
+            if (uniques_length == 6){
+                return "One Pair";
+            };
+			
+			return "nothing";
+			
+        }
+        Combo() = default;
+        Combo(std::vector<Card> a, Player Man){
+            this->cardsondesk_combo = a;
+			std::pair<Card,Card> man_cards = Man.get_hand_cards();
+            this->cardsondesk_combo.push_back(man_cards.first);
+            this->cardsondesk_combo.push_back(man_cards.second);
+			
+			if (man_cards.first.get_card_value() == man_cards.second.get_card_value()){
+				this->pre_combo = "One Pair (pre)";
+			}
+        }
+};
 class Table{
     private:
         std::vector<int> bets{};
         std::vector<Player> players{};
+        std::vector<Card> deck{};
         unsigned int lastBet=0;
         int sb=0;
         int bb = sb * 2;
-        char player_cursor=0;
         unsigned int folded_score=0;
         unsigned int all_game_money=0;
         int player_bet=0;
@@ -81,9 +210,31 @@ class Table{
 
     public:
         char player_cursor=0;
+        void generate_deck(){
+            short i;
+            short k;
+            for (i = 0; i < 13; i++){
+                for (k = 0; k < 4; k++){
+                    this->deck.push_back(Card(k, i));
+                } 
+            }
+        }
+        void shuffle_the_deck(){
+            std::random_shuffle(std::begin(this->deck), std::end(this->deck));
+        }
         void join_the_game(std::string argnick, int argstack ){
             Player NewPlayer(argnick,argstack);
             this->players.push_back(NewPlayer); 
+        }
+        void deal_hand_cards(){
+            for (short i=0; i < this->players.size(); i++){
+                std::pair<Card,Card> new_hand_cards{};
+                new_hand_cards.first = this->deck.back();
+                this->deck.pop_back();
+                new_hand_cards.second = this->deck.back();
+                this->deck.pop_back();
+                this->players[i].take_2_cards(new_hand_cards);  
+            }
         }
         void make_dealer(){
             char index = 0 + rand() % this->players.size();
@@ -93,6 +244,9 @@ class Table{
             for (char i=0; i < this->players.size(); i++){
                 this->bets.push_back(0);
             };
+        }
+        std::vector<Player> get_players(){
+            return this->players;
         }
         auto bet_blinds(){
             char n = index(this->players,this->dealer);
@@ -141,6 +295,7 @@ class Table{
             } else {
                 return this->player_cursor;
             }
+            return -1;
         }
         bool call_fold(std::string p_answer){
             std::string::size_type n;
@@ -170,4 +325,12 @@ class Table{
             }
             this->player_bet = pred_bet;
         }
+        std::pair<int,int> get_blinds(){
+            std::pair<int,int> r{this->sb,this->sb*2};
+            return r;
+        }
+        Table(){
+            generate_deck();
+            shuffle_the_deck();
+        };
 };
