@@ -75,6 +75,7 @@ int main(){
                 myTable.player_cursor = 0;
             };
             print("Упс... Кто то покину игру... =======");
+            // ticket 1: Если в новом раунде первую ставку сделать нулевой, то игра завершится 
         } // if fold
         std::cout << std::endl;
         while (myTable.bets_are_equal() != true){
