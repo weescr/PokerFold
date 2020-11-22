@@ -36,9 +36,8 @@ class Player{
     private:
         std::pair<Card,Card> hand_cards{};
         unsigned int stack{};
-        
-    public:
         std::string nickname="";    
+    public:
         void bet(int newbet){
             this->stack = this->stack - newbet;
         }
@@ -196,7 +195,7 @@ class Table{
         unsigned int folded_score=0;
         unsigned int all_game_money=0;
         int player_bet=0;
-        bool all_ined=false;
+        
         Player dealer;
         char index(std::vector<Player> mas, Player arg){
             char answ{};
@@ -210,6 +209,7 @@ class Table{
 
     public:
         char player_cursor=0;
+        bool all_ined=false;
         void generate_deck(){
             short i;
             short k;
@@ -250,13 +250,14 @@ class Table{
         }
         auto bet_blinds(){
             char n = index(this->players,this->dealer);
-            char sbp = (player_cursor + 1) % this->players.size();
-            char bbp = (player_cursor + 2) % this->players.size();
+            char sbp = (n + 1) % this->players.size();
+            char bbp = (n + 2) % this->players.size();
             this->players[sbp].bet(this->sb);
             this->players[bbp].bet(this->bb);
             this->bets[sbp] = this->sb;
             this->bets[bbp] = this->bb;
             this->lastBet = this->bb;
+            this->player_cursor = bbp;
             std::pair<int,int> data{sbp,bbp};
             return data;
         }
@@ -315,21 +316,38 @@ class Table{
             this->all_ined = false;
             this->make_zero_bets();
         }
-        auto get_valid_bet(int pred_bet){
+        std::pair<bool,std::string> get_valid_bet(int pred_bet){
             if (pred_bet > this->players[this->player_cursor].get_stack() ){
-                std::pair<bool,std::string> data{0,"Вы делаете ставку больше вашего стека. Введите новую ставку:\n"};
+                std::pair<bool,std::string> data{0,"Вы делаете ставку больше вашего стека. Введите новую ставку:"};
                 return data;
             }
             if (pred_bet + this->bets[this->player_cursor] < this->lastBet){
-                std::pair<bool,std::string> data{0,"Вы делаете ставку меньше последнего бета. Введите новую ставку:\n"};
+                std::pair<bool,std::string> data{0,"Вы делаете ставку меньше последнего бета. Введите новую ставку:"};
+                return data;
             }
+            std::pair<bool,std::string> data{1,"Ставка принята"};
             this->player_bet = pred_bet;
+            return data;
+        }
+        int previous(){
+            return this->player_bet;
         }
         std::pair<int,int> get_blinds(){
             std::pair<int,int> r{this->sb,this->sb*2};
             return r;
         }
-        Table(){
+        int get_lastbet(){
+            return this->lastBet;
+        }
+        std::vector<int> get_bets(){
+            return this->bets;
+        }
+        Player get_dealer(){
+            return this->dealer;
+        }
+        Table(int smallb){
+            this->sb = smallb;
+            this->bb = this->sb * 2;
             generate_deck();
             shuffle_the_deck();
         };
