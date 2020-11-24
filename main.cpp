@@ -13,28 +13,41 @@ void print(T smth){
 }
 
 void show_making_bets_process(Table obj){
-    std::cout << "Ставку делает:" << obj.get_players()[obj.p_cursor(false)].name() << std::endl;
-    std::cout << "Последняя ставка: " << obj.get_lastbet() << std::endl;
-    std::cout << "Стек: " << obj.get_players()[obj.p_cursor(false)].get_stack() << std::endl;
+    if (obj.get_players()[obj.p_cursor(false)].with_cards){
+        std::pair<Card,Card> player_cards = obj.get_players()[obj.p_cursor(false)].get_hand_cards();
+        std::cout << "Your cards: " << player_cards.first.display() << " | " << player_cards.second.display() << "\n";
+    }
+    std::cout << "Bet for:" << obj.get_players()[obj.p_cursor(false)].name() << std::endl;
+    std::cout << "Last Bet: " << obj.get_lastbet() << std::endl;
+    std::cout << "Stack: " << obj.get_players()[obj.p_cursor(false)].get_stack() << std::endl;
     if (obj.get_bets()[obj.p_cursor(false)] != 0){
-        std::cout << "Личный банк: " << obj.get_bets()[obj.p_cursor(false)] << std::endl;
+        std::cout << "Personal bank: " << obj.get_bets()[obj.p_cursor(false)] << std::endl;
     }
 }
+
+void show_desk(Table obj){
+    if (obj.get_desk().size() == 0){
+        std::cout << "На столе";
+    }
+    
+
+}
+
 
 int main(){
     print("PokerFold (v. 0.1)");
     Table myTable(5);
     std::cout << "Блайнды: " << myTable.get_blinds().first << " / " << myTable.get_blinds().second << std::endl;
-    print("Сколько сегодня играет?");
+    print("Сколько сегодня играет? skolka");
     short nplayers=0;
     std::cin >> nplayers;
     for (short i=0; i < nplayers; i++){
-        print("Введите имя игрока");
+        print("Введите имя игрока imya");
         std::string temp_nick="";
         std::cin >> temp_nick;
         int temp_stack=0;
         while (myTable.get_blinds().second > temp_stack){
-            print("Введите стек");            
+            print("Введите стек stack");            
             std::cin >> temp_stack;
             if (myTable.get_blinds().second > temp_stack){
                 print("Ваш стек слишком маленький");
@@ -45,10 +58,15 @@ int main(){
     print("=======Регистрация закончена======");
     myTable.make_dealer();
     myTable.make_zero_bets();
+    myTable.deal_hand_cards();
+    
+    
     std::cout << "Button: " << myTable.get_dealer().name() << std::endl;
 
     for (short round=0; round < myTable.get_players().size(); round++){
         if (round == 0){
+            myTable.put_cards_on_desk(round);
+            show_desk(myTable);
             std::pair<int,int> players_blinds = myTable.bet_blinds();
             std::cout << "Малый блайнд поставил: " << myTable.get_players()[players_blinds.first].name() << std::endl;
             std::cout << "Большой блайнд поставил: " << myTable.get_players()[players_blinds.second].name() << std::endl;

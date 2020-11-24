@@ -38,6 +38,7 @@ class Player{
         unsigned int stack{};
         std::string nickname="";    
     public:
+        bool with_cards = false;
         void bet(int newbet){
             this->stack = this->stack - newbet;
         }
@@ -189,6 +190,7 @@ class Table{
         std::vector<int> bets{};
         std::vector<Player> players{};
         std::vector<Card> deck{};
+        std::vector<Card> desk{};
         unsigned int lastBet=0;
         int sb=0;
         int bb = sb * 2;
@@ -234,6 +236,20 @@ class Table{
                 new_hand_cards.second = this->deck.back();
                 this->deck.pop_back();
                 this->players[i].take_2_cards(new_hand_cards);  
+                this->players[i].with_cards = true;
+            }
+        }
+        void put_cards_on_desk(char round){
+            if (round == 0){
+                this->desk.push_back(this->deck.back());
+                this->deck.pop_back();
+                this->desk.push_back(this->deck.back());
+                this->deck.pop_back();
+                this->desk.push_back(this->deck.back());
+                this->deck.pop_back();
+            } else {
+                this->desk.push_back(this->deck.back());
+                this->deck.pop_back();
             }
         }
         void make_dealer(){
@@ -344,6 +360,9 @@ class Table{
         }
         Player get_dealer(){
             return this->dealer;
+        }
+        std::vector<Card> get_desk(){
+            return this->desk;
         }
         Table(int smallb){
             this->sb = smallb;
