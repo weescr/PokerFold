@@ -179,10 +179,7 @@ class Combo{
 			std::pair<Card,Card> man_cards = Man.get_hand_cards();
             this->cardsondesk_combo.push_back(man_cards.first);
             this->cardsondesk_combo.push_back(man_cards.second);
-			
-			if (man_cards.first.get_card_value() == man_cards.second.get_card_value()){
-				this->pre_combo = "One Pair (pre)";
-			}
+            
         }
 };
 class Table{
@@ -363,6 +360,12 @@ class Table{
         }
         std::vector<Card> get_desk(){
             return this->desk;
+        }
+        std::string try_combo(short player_i){
+            Combo myCombo(this->desk, this->players[player_i]);
+            std::string answ = myCombo.answer();
+            
+            return answ;
         }
         Table(int smallb){
             this->sb = smallb;
