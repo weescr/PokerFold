@@ -86,8 +86,7 @@ int main(){
             if (myTable.p_cursor(false) >= myTable.get_players().size()){
                 myTable.player_cursor = 0;
             };
-            printf("=======Oops ... Someone left the game ...=======\n");
-            // ticket 1: Если в новом раунде первую ставку сделать нулевой, то игра завершится 
+            printf("=======Oops ... Someone left the game ...=======\n"); 
         } // if fold
         while (myTable.bets_are_equal() != true){
             show_making_bets_process(myTable);
