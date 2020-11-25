@@ -240,14 +240,14 @@ class Table{
             }
         }
         void put_cards_on_desk(char round){
-            if (round == 0){
+            if (round == 1){
                 this->desk.push_back(this->deck.back());
                 this->deck.pop_back();
                 this->desk.push_back(this->deck.back());
                 this->deck.pop_back();
                 this->desk.push_back(this->deck.back());
                 this->deck.pop_back();
-            } else {
+            } else if (round != 0){
                 this->desk.push_back(this->deck.back());
                 this->deck.pop_back();
             }
