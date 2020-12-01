@@ -30,6 +30,7 @@ class RegistrationForm(forms.Form):
                 raise forms.ValidationError({'email':["There is already an existing account with that email address."]})
                 return self
         return self.cleaned_data
+
 class LoginForm(forms.Form):
     nick = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput())

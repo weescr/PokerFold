@@ -3,7 +3,11 @@ from django.http import HttpResponse,HttpResponseRedirect
 from django.contrib.auth.models import User
 from accounts.forms import RegistrationForm,LoginForm
 from django.contrib.auth import authenticate, login
-
+#api
+from . import serializers
+from rest_framework import generics, status
+from rest_framework.response import Response
+from .models import Profile
 # Create your views here.
 
 def index(request):
@@ -41,3 +45,47 @@ def stats(request,username):
 	except:
 		return HttpResponse('<h1>Господи аа какой ты тупорылый олень! Ты сначала чекни: есть ли такой юзер, а потом мать чекни.</h1>')
 	return render(request,'stats.html',{'user':user})
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
+
+class UserCreateView(generics.CreateAPIView):
+	queryset = User.objects.all()
+	serializer_class = serializers.UserSerializer
+
+	def create(self, request, *args, **kwargs):
+		super(UserCreateView, self).create(request, args, kwargs)
+		response = {"status_code": status.HTTP_200_OK,
+                    "message": "Successfully created",
+                    "result": request.data}
+		return Response(response)
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+	queryset = Profile.objects.all()
+	serializer_class = serializers.ProfileSerializer
+
+	def retrieve(self, request, *args, **kwargs):
+		super(UserDetailView, self).retrieve(request, args, kwargs)
+		instance = self.get_object()
+		serializer = self.get_serializer(instance)
+		data = serializer.data
+		response = {"status_code": status.HTTP_200_OK,
+                    "message": "Successfully retrieved",
+                    "result": data}
+		return Response(response)
+
+	def patch(self, request, *args, **kwargs):
+		super(UsertDetailView, self).patch(request, args, kwargs)
+		instance = self.get_object()
+		serializer = self.get_serializer(instance)
+		data = serializer.data
+		response = {"status_code": status.HTTP_200_OK,
+                    "message": "Successfully updated",
+                    "result": data}
+		return Response(response)
+	def delete(self, request, *args, **kwargs):
+		super(UserDetailView, self).delete(request, args, kwargs)
+		response = {"status_code": status.HTTP_200_OK,
+                    "message": "Successfully deleted"}
+		return Response(response)
