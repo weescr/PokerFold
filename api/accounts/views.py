@@ -55,16 +55,16 @@ class UserCreateView(generics.CreateAPIView):
 	serializer_class = serializers.UserSerializer
 
 	def create(self, request, *args, **kwargs):
-		super(UserCreateView, self).create(request, args, kwargs)
+		#super(UserCreateView, self).create(request, args, kwargs)
+		u = User.objects.create_user(request.data.get('username'),request.data.get('username'),request.data.get('password'))
 		response = {"status_code": status.HTTP_200_OK,
                     "message": "Successfully created",
-                    "result": request.data}
+                    "result": u.username, "pass": u.password}
 		return Response(response)
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Profile.objects.all()
 	serializer_class = serializers.ProfileSerializer
-
 	def retrieve(self, request, *args, **kwargs):
 		super(UserDetailView, self).retrieve(request, args, kwargs)
 		instance = self.get_object()
@@ -72,7 +72,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 		data = serializer.data
 		response = {"status_code": status.HTTP_200_OK,
                     "message": "Successfully retrieved",
-                    "result": data}
+                    "result_for_profile": data}
 		return Response(response)
 
 	def patch(self, request, *args, **kwargs):
