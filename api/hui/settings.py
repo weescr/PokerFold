@@ -22,7 +22,7 @@ import os, sys
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'gg!dc5kh@#u%j!3qp42*dnu2kkv1a4d1zxj8aq$w3a#5z^*45&'
+SECRET_KEY = 'gg!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'rest_framework',
-    'game'
+    'game',
+    'api'
 ]
 
 MIDDLEWARE = [

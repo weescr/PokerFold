@@ -1,15 +1,16 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Profile
-
+from accounts.models import Profile
+from game.models import Game
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username','password']
 
-class ProfileSerializer(serializers.ModelSerializer):
+class GameSerializer(serializers.ModelSerializer):
+   
     class Meta:
-        model = Profile
-        fields = ['sex','money','in_game']
-
+        model = Game
+        fields = ('id', 'status')
+        
