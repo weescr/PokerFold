@@ -18,7 +18,7 @@ def userpage(request,username):
 		user = User.objects.get(username__exact = username)
 	except:
 		return HttpResponse('<h1>Еблан. Такого юзера нет</h1>')
-	return HttpResponse('<h1>{}|{}</h1>'.format(user.username,user.profile.money))
+	return render(request,'account/user.html',{'user':user})
 
 def register(request):
 	form = RegistrationForm(request.POST or None)
