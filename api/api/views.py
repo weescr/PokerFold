@@ -5,6 +5,12 @@ from django.contrib.auth.models import User
 from game.models import Game
 from accounts.models import Profile
 from . import handler
+from django.contrib.auth import authenticate, login
+import uuid
+from .models import Token
+
+def random__hash():
+    return uuid.uuid4().hex
 
 @api_view(['GET'])
 def index(request):
@@ -59,6 +65,24 @@ def game_by_id(request,pk):
     game_obj['players'] = new_players
     
     return Response(game_obj)
-    
 
+@api_view(['POST'])
+def get_token(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    print('username:',username,'password:',password)
+    user = authenticate(request,username=username, password=password)
+    if not user:
+        return Response('auth failed')
+    #login(request, user)
+    token = Token.objects.create(user=user,hash=random__hash(),scope=1)
+    obj = {
+        'username': user.username,
+        'token': token.hash
+    }
+    return Response(obj)
+
+@api_view(['POST'])
+def join_the_game(request):
+    pass
 

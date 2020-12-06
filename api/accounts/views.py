@@ -26,7 +26,7 @@ def register(request):
 	    username = form.cleaned_data['email']
 	    password = form.cleaned_data['password']
 	    user = User.objects.create_user(username,username,password)
-	    login(request, user)
+	    login(user)
 	    return HttpResponse('<h1>Registered</h1>')
 	return render(request,'register.html',{'form':form})
 
