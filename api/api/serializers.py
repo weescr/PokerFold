@@ -6,11 +6,11 @@ from game.models import Game
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username','password']
+        fields = ['id','username']
 
 class GameSerializer(serializers.ModelSerializer):
    
     class Meta:
         model = Game
-        fields = ('id', 'status')
+        fields = ('__all__')
         

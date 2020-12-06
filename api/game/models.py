@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 class Game(models.Model):
 	status = models.IntegerField(default = 0)  #0 - ожидание игроков | 1 - игра в процессе | игра закончена
+	game_owner = models.IntegerField(default=0)
 	players = models.CharField(max_length = 250) # uli nick tim
 	
 	def __str__(self):
