@@ -19,24 +19,80 @@ def index(request):
 @api_view(['GET'])
 def list_users(request):
     users = User.objects.all()
-    serializer = serializers.UserSerializer(users, many=True)
+    serializer =  serializers.UserSerializer(users, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def list_games(request):
     queryset = Game.objects.all()
-    Users = User.objects.all()
-    serializer1 = serializers.UserSerializer(Users,many=True)
     serializer = serializers.GameSerializer(queryset, many=True)
-    return Response(serializer1.data + serializer.data)
+    return Response(serializer.data)
+
+####
+###########TOKENS
+####
+
+@api_view(['POST'])
+def get_new_token():
+    username = request.data.get('username')
+    password = request.data.get('password')
+    print('username:',username,'password:',password)
+    user = authenticate(request,username=username, password=password)
+    if not user:
+        return Response({'error': 2, 'message': 'invalid credential'})
+    #login(request, user)
+    token = Token.objects.create(user=user,hash=random__hash(),scope=1)
+    obj = {
+        'username': user.username,
+        'token': token.hash
+    }
+    return Response(obj)
+
+@api_view(['GET'])
+def delete_token(request,pk):
+    try:
+        token = Token.objects.get(hash__exact = pk)
+        token.delete()
+    except:
+        return Response({'error_code': 1,'message':'invalid token'})
+
+@api_view(['GET']):
+def token_status(request,pk):
+    try:
+        token = Token.objects.get(hash__exact = pk)
+    except:
+        return Response({'error_code': 1, 'message': 'invalid token'})
+
+#####
+################## IN-GAME
+#####
+
+@api_view(['GET'])
+def game_by_id(request,pk):
+    game = Game.objects.get(id=pk)
+    serializer = serializers.GameSerializer(game)
+    game_obj = handler.read_game(pk)
+    new_players = []
+    for player_json in game_obj['players']:
+        new_player_obj = User.objects.get(username__exact = player_json['username'])
+        serializer2 = serializers.UserSerializer(new_player_obj)
+        new_players.append(serializer2.data)
+    game_obj['players'] = new_players
+    return Response(game_obj)
 
 @api_view(['POST'])
 def create_game(request):
     try:
-        owner = User.objects.get(id=request.data.get('id'))
-        game = Game.objects.create(game_owner=owner.id,players=owner.username)
+        user_token = request.data.get('token')
     except:
-        return Response("error")
+        return Response({"error_code":3,'message':'Token required'})
+    try:
+        token = Token.objects.get(hash__exact = user_token)
+    except:
+        return Response({'error_code': 1,'message': 'Invalid token'}) 
+    
+    owner = User.objects.get(id = token.user.id))
+    game = Game.objects.create(game_owner=owner.id,players=owner.username)
     in_game_players = []
     for player_name in list(game.players.split(" ")):
         player = User.objects.get(username__exact = player_name)
@@ -50,39 +106,36 @@ def create_game(request):
         'players': in_game_players,
     }
     handler.write_game(game.id,jsong_obj)
-    return Response("succes!")
+    return Response({'success':'game created', 'game_id':game.id,'game_owner': game.game_owner})
 
-@api_view(['GET'])
-def game_by_id(request,pk):
-    game = Game.objects.get(id=pk)
-    serializer = serializers.GameSerializer(game)
-    game_obj = handler.read_game(pk)
-    new_players = []
-    for player_json in game_obj['players']:
-        new_player_obj = User.objects.get(username__exact = player_json['username'])
-        serializer2 = serializers.UserSerializer(new_player_obj)
-        new_players.append(serializer2.data)
-    game_obj['players'] = new_players
+@api_view(['POST'])
+def join_the_game(request,id):
+    try:
+        game = Game.objects.get(id = id)
+    except:
+        return Response({'error_code':4,'message': 'That game never existed'})
     
-    return Response(game_obj)
+    # todo: Проверка на переполненную игру
+    try:
+        user_token = request.data.get('token')
+    except:
+        return Response({'error_code': 3, 'message': 'Token required'})
+    
+    try:
+        token = Token.objects.get(id = )
+    game_file = handler.read_game(id)
+    
+    game_file['players'].append()
+
 
 @api_view(['POST'])
 def get_token(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
-    print('username:',username,'password:',password)
-    user = authenticate(request,username=username, password=password)
-    if not user:
-        return Response('auth failed')
-    #login(request, user)
-    token = Token.objects.create(user=user,hash=random__hash(),scope=1)
-    obj = {
-        'username': user.username,
-        'token': token.hash
-    }
-    return Response(obj)
+    
 
 @api_view(['POST'])
 def join_the_game(request):
     pass
 
+@api_view(['GET'])
+def token_move(request,pk):
+    valid = Token.objects.get()
