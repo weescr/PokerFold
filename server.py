@@ -35,13 +35,13 @@ class Player:
 class Combo:
 	__slots__ = ('cardsondesk_combo')
 
-	def __values__(self, a):
+	def __values(self, a):
 		n = []
 		for i in range(len(a):
 			n.append(a[i].value())
 		return n
 
-	def __thereflush__(self, a, fr, to):
+	def __thereflush(self, a, fr, to):
 		suits = a[fr:to:1]
 		setted_suit = suits
 		if (len(setted_suit) == 1):
@@ -49,7 +49,7 @@ class Combo:
 		else:
 			return False
 
-	def __therestraight__(self, a, fr, to):
+	def __therestraight(self, a, fr, to):
 		if (values(a)[fr:to:1] == range(a[0].get_card_value(),to)):
 			return True
 		else:
@@ -64,11 +64,9 @@ class Combo:
 	def answer(self):
 		self.cardsondesk_combo.sort(key = lambda card: card.value)
 
-		def minimal_card(self):
-			return self.cardsondesk_combo[0]
+		minimal_card = Card(self.cardsondesk_combo[0])
 
-		def uniques_length(self):
-			len(self.cardsondesk_combo)
+		uniques_length = len(self.cardsondesk_combo)
 
 		temp = self.cardsondesk_combo
 
@@ -112,12 +110,6 @@ class Table:
 	
 	__slots__ = ('bets', 'players', 'deck', 'desk','lastBet', 'sb', 'bb', 'folded_score', 'all_game_money','player_bet', 'player_cursor','all_ined')
 	
-	def __index__(self, mas, arg):
-		for i in range(len(mas)):
-			if (mas[i].name() == arg.name()):
-				return i
-		return -1
-
 	def __init__(self, sb):
 		self.bets = []
 		self.players = []
