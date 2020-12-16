@@ -1,24 +1,22 @@
 import random
 
-NVAL = 13
-NSUIT = 4
-
 
 cardsuit = ["черви","вини","буби","крести"]
 cardvalue = ["2","3","4","5","6","7","8","9","10","Валет","Дама","Король","Туз"]
 
 class Card:
+
 	__slots__ = ('value', 'suit')
 
 	def __init__(self, dsuit, dval):
 		self.value = dval
-		self.suit = dsuit
+		self.suit = dsuits
 
 	def display(self):
 		return cardvalue[self.value] + " " + cardsuit[self.suit]
 
 class Player:
-	__slots__ = ('stack', 'nickname')
+	__slots__ = ('stack', 'nickname','hand_cards')
 
 	def __init__(self, newstack, newnickname):
 		self.stack = newstack
@@ -26,46 +24,48 @@ class Player:
 		self.with_cards = False
 		self.hand_cards = []
 
-	def take_2_cards(self, argcards):
-		return self.hand_cards = argcards
+	def bet(self,val):
+		self.stack -= val
 
-	def get_hand_cards(self):
-		return hand_cards
+	def take_2_cards(self, argcards):
+		self.hand_cards = argcards
 
 class Combo:
+
 	__slots__ = ('cardsondesk_combo')
 
-	def __values(self, a):
+	def __values(self, list_cards_class):
 		n = []
-		for i in range(len(a):
-			n.append(a[i].value())
+		for card in list_cards_class:
+			n.append(card.value)
 		return n
 
-	def __thereflush(self, a, fr, to):
-		suits = a[fr:to:1]
-		setted_suit = suits
+	# todo: custom set comporator
+	def __thereflush(self, list_cards_class, fr, to):
+		suits = list_cards_class[fr:to]
+		setted_suit = set(suits)
 		if (len(setted_suit) == 1):
 			return True
 		else:
 			return False
 
-	def __therestraight(self, a, fr, to):
-		if (values(a)[fr:to:1] == range(a[0].get_card_value(),to)):
+	def __therestraight(self, list_cards, fr, to):
+		if self.__values(list_cards)[fr:to] == range(list_cards[0].value,to):
 			return True
 		else:
 			return False
 
 	def __init__(self, a, Man):
 		self.cardsondesk_combo = a
-		man_cards = Man.get_hand_cards()
+		man_cards = Man.hand_cards
 		self.cardsondesk_combo.append(man_cards[0])
 		self.cardsondesk_combo.append(man_cards[1])
 
 	def answer(self):
-		self.cardsondesk_combo.sort(key = lambda card: card.value)
+		self.cardsondesk_combo.sort(key = lambda card: card.value) # todo: Проверить!
 
 		minimal_card = Card(self.cardsondesk_combo[0])
-
+		# todo: cutom comporator
 		uniques_length = len(self.cardsondesk_combo)
 
 		temp = self.cardsondesk_combo
@@ -135,17 +135,17 @@ class Table:
 		random.shuffle(self.deck)
 
 	def join_the_game(self, argnick, argstack):
-		self.players.append(Player(nick,stack))
+		self.players.append(Player(argnick,argstack))
 
 	def deal_hand_cards(self):
 		for i in range(len(self.players)):
-			new_hand_cards = {}
-			new_hand_cards[1] = self.deck[-1]
+			new_hand_cards = []
+			new_hand_cards.append(self.deck[-1])
 			self.deck.pop()
-			new_hand_cards[2] = self.deck[-1]
+			new_hand_cards.append(self.deck[-1])
 			self.deck.pop()
 			self.players[i].take_2_cards(new_hand_cards)
-			self.players[i].with_cards = true
+			self.players[i].with_cards = True
 
 	def put_cards_on_desk(self, round):
 		if (round == 1):
@@ -202,10 +202,11 @@ class Table:
 			self.player_cursor = (self.player_cursor + 1) % len(self.players)
 		else:
 			return self.player_cursor
-		return -1
+		
 
 	def call_fold(self,p_answ):
-		try: n = p_answ.index("fold")
+		try:
+			n = p_answ.index("fold")
 			return True
 		except:
 			return False
@@ -232,4 +233,4 @@ class Table:
 
 	def try_combo(self,player_i):
 		myCombo = Combo(self.desk, self.players[player_i])
-		return myCombo.answer();
+		return myCombo.answer()
