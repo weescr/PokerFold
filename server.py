@@ -10,12 +10,16 @@ class Card:
 
 	def __init__(self, dsuit, dval):
 		self.value = dval
-		self.suit = dsuits
+		self.suit = dsuit
+
+	def __str__(self):
+		return cardvalue[self.value] + " " + cardsuit[self.suit]
 
 	def display(self):
 		return cardvalue[self.value] + " " + cardsuit[self.suit]
 
 class Player:
+	
 	__slots__ = ('stack', 'nickname','hand_cards')
 
 	def __init__(self, newstack, newnickname):
@@ -44,13 +48,13 @@ class Combo:
 	def __thereflush(self, list_cards_class, fr, to):
 		suits = list_cards_class[fr:to]
 		setted_suit = set(suits)
-		if (len(setted_suit) == 1):
+		if len(setted_suit) == 1:
 			return True
 		else:
 			return False
 
 	def __therestraight(self, list_cards, fr, to):
-		if self.__values(list_cards)[fr:to] == range(list_cards[0].value,to):
+		if self.__values(list_cards)[fr:to] == list(range(list_cards[0].value,to)):
 			return True
 		else:
 			return False
@@ -70,40 +74,41 @@ class Combo:
 
 		temp = self.cardsondesk_combo
 
-		if (uniques_length() >= 5):
-			temp2 = __values(temp)
+		if (uniques_length >= 5):
+			temp2 = self.__values(temp)
 			l = len(temp2)
 			l1 = len(temp)
 
-			if (__thereflush(temp, l1-5, l1) and temp2[l-1] == 12 and temp2[l-2] == 11 and temp2[l-3] == 10 and temp2[l-4] == 9 and temp2[l-5] == 8):
+			if (self.__thereflush(temp, l1-5, l1) and temp2[l-1] == 12 and temp2[l-2] == 11 and temp2[l-3] == 10 and temp2[l-4] == 9 and temp2[l-5] == 8):
 				return "Royal Flush"
 
 			for i in range (3):
-				if (__therestraight(temp, 0+i, 5+i) and __thereflush(temp, 0+i, 5+i)):
+				if (self.__therestraight(temp, 0+i, 5+i) and self.__thereflush(temp, 0+i, 5+i)):
 					return "Straight Flush"
 
-		if (uniques_length() == 4 or uniques_length() == 3 or uniques_length() == 2):
+		if (uniques_length == 4 or uniques_length == 3 or uniques_length == 2):
 			temp = self.__values(self.cardsondesk_combo)
-				if (temp.count(temp[0]) == 4 or temp.count(temp[1]) == 4 or temp.count(temp[2]) == 4):
-					return "Four of a Kind"
-				return "Full House"
+			if (temp.count(temp[0]) == 4 or temp.count(temp[1]) == 4 or temp.count(temp[2]) == 4):
+				return "Four of a Kind"
+			return "Full House"
 
-		if (__thereflush(temp, 0, 2) or __thereflush(temp, 1, 6) or __thereflush(temp, 2, 7)):
+		if (self.__thereflush(temp, 0, 2) or self.__thereflush(temp, 1, 6) or self.__thereflush(temp, 2, 7)):
 			return "Flush"
 
-		for in range (3):
-			if (__therestraight(temp, 0+i, 5+i)):
+		for i in range(3):
+			if (self.__therestraight(temp, 0+i, 5+i)):
 				return "Straight"
 
-		if (uniques_length() == 5):
+		if (uniques_length == 5):
 			temp = self.__values(self.cardsondesk_combo)
-			for i in range (5):
+			for i in range(5):
 				if (temp.count(temp[i]) == 3):
 					return "Three of a kind / SET"
-				return "Two Pairs"
+			return "Two Pairs"
 			
-		if (uniques_length() == 6):
+		if (uniques_length == 6):
 			return "One Pair"
+
 		return "nothing"
 
 class Table:
@@ -140,28 +145,25 @@ class Table:
 	def deal_hand_cards(self):
 		for i in range(len(self.players)):
 			new_hand_cards = []
-			new_hand_cards.append(self.deck[-1])
-			self.deck.pop()
-			new_hand_cards.append(self.deck[-1])
-			self.deck.pop()
+			new_hand_cards.append(self.deck.pop())
+			new_hand_cards.append(self.deck.pop())
 			self.players[i].take_2_cards(new_hand_cards)
 			self.players[i].with_cards = True
 
 	def put_cards_on_desk(self, round):
 		if (round == 1):
 			for i in range(3):
-				self.desk.append(self.deck[-1])
-				self.deck.pop()
+				self.desk.append(self.deck.pop())
+				
 		elif (round != 0):
-			self.desk.append(self.deck[-1])
-			self.deck.pop()
+			self.desk.append(self.deck.pop())
 
 	def make_dealer(self):
 		self.dealer = self.players.index(random.choice(self.players))
 
 	def make_zero_bets(self):
 		for i in range(len(self.players)):
-			self.bets.append(0)
+			self.bets.append(0) # todo: оптимизировать
 
 	def bet_blinds(self):
 		n = self.players.index(self.dealer)
@@ -176,14 +178,13 @@ class Table:
 		return sbp,bbp
 
 	def calc_bank(self):
-		summa = sum(self.bets) + self.folded_score
-		return summa
+		return sum(self.bets) + self.folded_score
 
 	def bets_are_equal(self):
 		if len(list(set(self.bets))) == 1:
 			return True
 		else:
-			 return False
+			return False
 
 	def tableBet(self,player_i,player_bet):
 		self.players[player_i].bet(player_bet)
@@ -197,7 +198,7 @@ class Table:
 		self.bets.pop(player_i)
 		self.players.pop(player_i)
 
-	def p_cursor(self, find):
+	def p_cursor(self, find=None):
 		if find:
 			self.player_cursor = (self.player_cursor + 1) % len(self.players)
 		else:
@@ -221,16 +222,15 @@ class Table:
 		self.make_zero_bets()
 
 	def get_valid_bet(self,pred_bet):
-		if pred_bet > self.players[self.p_cursor()].stack:
+		if pred_bet > self.players[self.player_cursor].stack:
 			return [0,"Вы делаете ставку больше вашего стека. Введите новую ставку:"]
-		if pred_bet + self.bets[self.p_cursor()] < self.lastBet:
+		if pred_bet + self.bets[self.player_cursor] < self.lastBet:
 			return [0,"Вы делаете ставку меньше последнего бета. Введите новую ставку:"]
-		obj.player_bet = pred_bet
+		self.player_bet = pred_bet
 		return [1,"Ставка принята"]
 
 	def get_blinds(self):
-		return self.sb,self.bb
+		return self.sb, self.bb
 
 	def try_combo(self,player_i):
-		myCombo = Combo(self.desk, self.players[player_i])
-		return myCombo.answer()
+		return Combo(self.desk, self.players[player_i]).answer()
