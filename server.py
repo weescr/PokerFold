@@ -71,32 +71,32 @@ class Combo:
 		temp = self.cardsondesk_combo
 
 		if (uniques_length() >= 5):
-			temp2 = values(temp)
+			temp2 = __values(temp)
 			l = len(temp2)
 			l1 = len(temp)
 
-			if (thereflush(temp, l1-5, l1) and temp2[l-1] == 12 and temp2[l-2] == 11 and temp2[l-3] == 10 and temp2[l-4] == 9 and temp2[l-5] == 8):
+			if (__thereflush(temp, l1-5, l1) and temp2[l-1] == 12 and temp2[l-2] == 11 and temp2[l-3] == 10 and temp2[l-4] == 9 and temp2[l-5] == 8):
 				return "Royal Flush"
 
 			for i in range (3):
-				if (therestraight(temp, 0+i, 5+i) and thereflush(temp, 0+i, 5+i)):
+				if (__therestraight(temp, 0+i, 5+i) and __thereflush(temp, 0+i, 5+i)):
 					return "Straight Flush"
 
 		if (uniques_length() == 4 or uniques_length() == 3 or uniques_length() == 2):
-			temp = self.values(self.cardsondesk_combo)
+			temp = self.__values(self.cardsondesk_combo)
 				if (temp.count(temp[0]) == 4 or temp.count(temp[1]) == 4 or temp.count(temp[2]) == 4):
 					return "Four of a Kind"
 				return "Full House"
 
-		if (thereflush(temp, 0, 2) or thereflush(temp, 1, 6) or thereflush(temp, 2, 7)):
+		if (__thereflush(temp, 0, 2) or __thereflush(temp, 1, 6) or __thereflush(temp, 2, 7)):
 			return "Flush"
 
 		for in range (3):
-			if (therestraight(temp, 0+i, 5+i)):
+			if (__therestraight(temp, 0+i, 5+i)):
 				return "Straight"
 
 		if (uniques_length() == 5):
-			temp = self.values(self.cardsondesk_combo)
+			temp = self.__values(self.cardsondesk_combo)
 			for i in range (5):
 				if (temp.count(temp[i]) == 3):
 					return "Three of a kind / SET"
@@ -110,7 +110,7 @@ class Table:
 	
 	__slots__ = ('bets', 'players', 'deck', 'desk','lastBet', 'sb', 'bb', 'folded_score', 'all_game_money','player_bet', 'player_cursor','all_ined')
 	
-	def __init__(self, sb):
+	def __init__(self, smallb):
 		self.bets = []
 		self.players = []
 		self.deck = []
@@ -122,7 +122,7 @@ class Table:
 		self.all_game_money = 0
 		self.player_bet = 0
 		self.player_cursor = 0
-		self.all_ined = false
+		self.all_ined = False
 		generate_deck()
 		shuffle_the_deck()
 

@@ -1,0 +1,48 @@
+[33mcommit c87add5d43759eac5a6ab0e47215ba1566fd269c[m[33m ([m[1;36mHEAD -> [m[1;32mserver-python[m[33m, [m[1;31morigin/server-python[m[33m)[m
+Author: gepeusea <ulfinka@gmail.com>
+Date:   Fri Dec 18 17:11:58 2020 +0300
+
+    Исправление ошибок и оптимизация 1/2
+
+[33mcommit c8accd4eb5d76c15d0b4b6b7ef1be36fda8c8eb5[m
+Author: gepeusea <ulfinka@gmail.com>
+Date:   Wed Dec 16 23:49:08 2020 +0300
+
+    Исправление ошибок и оптимизация 1/2
+
+[33mcommit 6c1a953a3b9867a81fa74a59550783da62e58630[m
+Author: gepeusea <ulfinka@gmail.com>
+Date:   Wed Dec 16 18:35:38 2020 +0300
+
+    Я внесла небольшие изменения
+
+[33mcommit 8cf063c86a48a6310e376210177a1ea5cae66720[m
+Merge: f49fe63 299fcdf
+Author: gepeusea <ulfinka@gmail.com>
+Date:   Wed Dec 16 17:21:18 2020 +0300
+
+    Класс Table
+
+[33mcommit f49fe6395ff17403355c3d97e94dfbc077f212b6[m
+Author: gepeusea <ulfinka@gmail.com>
+Date:   Tue Dec 15 17:55:02 2020 +0300
+
+    класс Combo
+
+[33mcommit 299fcdf747e8ebac7225425a7f9cded66b28a0ed[m
+Author: Uli <52220881+Gepeusea@users.noreply.github.com>
+Date:   Sun Dec 6 10:57:18 2020 +0300
+
+    Отредактированы отступы
+
+[33mcommit aa0d0dc9821725a2ba83121942df0f8fe2d96b58[m
+Author: Uli <52220881+Gepeusea@users.noreply.github.com>
+Date:   Sat Dec 5 15:53:49 2020 +0300
+
+    классы Card и Player
+
+[33mcommit 01019ffc776289ff44e77bd4bb58d890182f04b3[m[33m ([m[1;32mmaster[m[33m)[m
+Author: gepeusea <ulfinka@gmail.com>
+Date:   Fri Dec 4 19:39:56 2020 +0300
+
+    Начало сервера
