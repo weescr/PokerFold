@@ -1,5 +1,5 @@
 import random
-
+import operator
 
 cardsuit = ["черви","вини","буби","крести"]
 cardvalue = ["2","3","4","5","6","7","8","9","10","Валет","Дама","Король","Туз"]
@@ -44,10 +44,9 @@ class Combo:
 			n.append(card.value)
 		return n
 
-	# todo: custom set comporator
 	def __thereflush(self, list_cards_class, fr, to):
 		suits = list_cards_class[fr:to]
-		setted_suit = set(suits)
+		setted_suit = set(map(operator.attrgetter('suit'), suits))
 		if len(setted_suit) == 1:
 			return True
 		else:
@@ -68,11 +67,13 @@ class Combo:
 	def answer(self):
 		self.cardsondesk_combo.sort(key = lambda card: card.value) # todo: Проверить!
 
-		minimal_card = Card(self.cardsondesk_combo[0])
-		# todo: cutom comporator
-		uniques_length = len(self.cardsondesk_combo)
+		minimal_card = self.cardsondesk_combo[0]
+		
+		setted_cards = set(map(operator.attrgetter('value'), self.cardsondesk_combo))
+		
+		uniques_length = len(setted_cards)
 
-		temp = self.cardsondesk_combo
+		temp = setted_cards
 
 		if (uniques_length >= 5):
 			temp2 = self.__values(temp)
