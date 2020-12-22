@@ -33,7 +33,7 @@ def list_games(request):
 ####
 
 @api_view(['POST'])
-def get_new_token():
+def get_new_token(request):
     username = request.data.get('username')
     password = request.data.get('password')
     print('username:',username,'password:',password)
@@ -56,22 +56,23 @@ def delete_token(request,pk):
     except:
         return Response({'error_code': 1,'message':'invalid token'})
 
-@api_view(['GET']):
+@api_view(['GET'])
 def token_status(request,pk):
     try:
         token = Token.objects.get(hash__exact = pk)
     except:
         return Response({'error_code': 1, 'message': 'invalid token'})
+    return Response({'success':'token is active','owner':token.user.username})
 
 #####
 ################## IN-GAME
 #####
 
 @api_view(['GET'])
-def game_by_id(request,pk):
-    game = Game.objects.get(id=pk)
+def game_by_id(request,id):
+    game = Game.objects.get(id=id)
     serializer = serializers.GameSerializer(game)
-    game_obj = handler.read_game(pk)
+    game_obj = handler.read_game(id)
     new_players = []
     for player_json in game_obj['players']:
         new_player_obj = User.objects.get(username__exact = player_json['username'])
@@ -82,7 +83,7 @@ def game_by_id(request,pk):
 
 @api_view(['POST'])
 def create_game(request):
-    try:
+    try:  
         user_token = request.data.get('token')
     except:
         return Response({"error_code":3,'message':'Token required'})
@@ -91,7 +92,7 @@ def create_game(request):
     except:
         return Response({'error_code': 1,'message': 'Invalid token'}) 
     
-    owner = User.objects.get(id = token.user.id))
+    owner = User.objects.get(id = token.user.id)
     game = Game.objects.create(game_owner=owner.id,players=owner.username)
     in_game_players = []
     for player_name in list(game.players.split(" ")):
@@ -109,11 +110,11 @@ def create_game(request):
     return Response({'success':'game created', 'game_id':game.id,'game_owner': game.game_owner})
 
 @api_view(['POST'])
-def join_the_game(request,id):
+def join_the_game(request):
     try:
-        game = Game.objects.get(id = id)
+        game = Game.objects.get(id = request.data.get('gameid'))
     except:
-        return Response({'error_code':4,'message': 'That game never existed'})
+        return Response({'error_code':4,'message': 'That game never existed','requested_game':request.data.get('gameid')})
     
     # todo: Проверка на переполненную игру
     try:
@@ -122,20 +123,42 @@ def join_the_game(request,id):
         return Response({'error_code': 3, 'message': 'Token required'})
     
     try:
-        token = Token.objects.get(id = )
-    game_file = handler.read_game(id)
-    
-    game_file['players'].append()
+        token = Token.objects.get(hash = user_token)
+    except:
+        return Response({'error_code':1, 'message':'invalid token'})
 
+    game_file = handler.read_game(request.data.get('gameid'))
+    new_player_obj = User.objects.get(id = token.user.id)
+    serializer2 = serializers.UserSerializer(new_player_obj)
+    # todo: Проверку на то, что он уже в игре
+    game_file['players'].append(serializer2.data)
+    handler.write_game(request.data.get('gameid'),game_file)
+    return Response({'success':'u r in da game'})
 
 @api_view(['POST'])
-def get_token(request):
-    
+def leave_the_game(request):
+    try:
+        game = Game.objects.get(id = request.data.get('gameid'))
+    except:
+        return Response({'error_code':4,'message': 'That game never existed','requested_game':request.data.get('gameid')})
 
-@api_view(['POST'])
-def join_the_game(request):
-    pass
+    try:
+        user_token = request.data.get('token')
+    except:
+        return Response({'error_code': 3, 'message': 'Token required'})
 
-@api_view(['GET'])
-def token_move(request,pk):
-    valid = Token.objects.get()
+    try:
+        token = Token.objects.get(hash = user_token)
+    except:
+        return Response({'error_code':1, 'message':'invalid token'})
+
+    game_file = handler.read_game(request.data.get('gameid'))
+    username = User.objects.get(id = token.user.id).username
+    #serializer2 = serializers.UserSerializer(new_player_obj)
+    # todo: Проверку на то, что он уже не был в игре
+    for i in range(len(game_file['players'])):
+        if game_file['players'][i]['username'] == username:
+            game_file['players'].pop(i)
+            break
+    handler.write_game(request.data.get('gameid'),game_file)
+    return Response({'success':'u r leaved da game'})

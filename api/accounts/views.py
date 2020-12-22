@@ -30,7 +30,7 @@ def register(request):
 	    return HttpResponse('<h1>Registered</h1>')
 	return render(request,'register.html',{'form':form})
 
-def login(request):
+def login_page(request):
 	form = LoginForm(request.POST or None)
 	if request.POST and form.is_valid():
 		username = form.cleaned_data['nick']
