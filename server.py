@@ -238,77 +238,122 @@ class Table:
 	def try_combo(self,player_i):
 		return Combo(self.desk, self.players[player_i]).answer()
 
-class Game(Table):
+class Game(Table, Combo, Card, Player):
 	
 	def __init__(self):
 		pass
 
 	def show_making_bets_process(self, table_obj):
-		print( "Player: {} \n".format(table_obj.players[table_obj.player_cursor].nickname))
+		print( "Player: {} ".format(table_obj.players[table_obj.player_cursor].nickname))
 
 		if (table_obj.players[table_obj.player_cursor].with_cards):
-			player_cards = table_obj.players[table_obj.player_cursor].get_hand_cards
-			print("Your cards: {} && {} \n".format(player_cards[0].display(),player_cards[1].display()))
+			player_cards = table_obj.players[table_obj.player_cursor].hand_cards
+			print("Your cards: {} && {} ".format(player_cards[0].display(),player_cards[1].display()))
 
-		print("Last Bet: {} \n".format(table_obj.lastBet))
-		print("Stack: {} \n".format(table_obj.players[table_obj.player_cursor].stack))
+		print("Last Bet: {} ".format(table_obj.lastBet))
+		print("Stack: {} ".format(table_obj.players[table_obj.player_cursor].stack))
 
 		if (table_obj.bets[table_obj.p_cursor()] != 0):
-			print("Personal bank: {} \n".format(table_obj.bets[obj.player_cursor]))
+			print("Personal bank: {} ".format(table_obj.bets[obj.player_cursor]))
 
 	def show_desk(self, table_obj):
 		print("|")
 		if len(table_obj.desk) != 0:
-			for i in range(table_obj.desk):
-				print(" | ", i.display())
-			print("\n")
-			for i in range(1):
-				while :
-					pass
+			for i in table_obj.desk:
+				print("{} | ".format(i.display()))
 
 	def players_register(self, table_obj):
-		nplayers = 0
 		nplayers = int(input("How many players are playing today? "))
 		for i in range(nplayers):
-			temp_nick = ""
-			temp_nick = int(input("New player name: "))
-			temp_stack = 0
-			while(table_obj.blinds[1] > temp_stack):
+			temp_nick = input("New player name: ")
+			while(list(table_obj.get_blinds())[1] > temp_stack):
 				temp_stack = int(input("New player stack: "))
-				if (table_obj.blinds[1] > temp_stack):
+				if (list(table_obj.get_blinds())[1] > temp_stack):
 					print("Your stack is too small")
-			print("Registered!\n")
+			print("Registered!")
 			table_obj.join_the_game(temp_nick,temp_stack)
 		return table_obj
 
 	def main(self):
-		print("PokerFold (v. 0.1)\n")
-		if __name__ == "__main__":
+		print("PokerFold (v. 0.1)")
+		if __name__ == "__main__": # todo: учитель называется блять, нет бы объяснил, что не нравится
 			preTable = Table(5)
-			print("==========Registration of new players=========\n")
-			print("Blinds are: {} / {}\n".format(preTable.blinds[0], preTable.blinds[1]))
+			print("==========Registration of new players=========")
+			print("Blinds are: {} / {}".format(list(preTable.get_blinds())[0], list(preTable.get_blinds())[1]))
 
 			myTable =  players_register(preTable)
-			print("=======Registration of new players is over======\n")
+			print("=======Registration of new players is over======")
 			myTable.make_dealer()
 			myTable.make_zero_bets()
 			myTable.deal_hand_cards()
 
-			print("Button: {}\n".format(myTable.dealer.nickname))
+			print("Button: {}".format(myTable.dealer.nickname))
 
 			for round in range(4):
 				myTable.put_cards_on_desk(round)
 				if (round == 0):
 					players_blinds = list(myTable.bet_blinds())
-					print("SB / BB: {} & {}\n".format(myTable.players[players_blinds[0]].nickname, myTable.players[players_blinds[1]].nickname))
+					print("SB / BB: {} & {}".format(myTable.players[players_blinds[0]].nickname, myTable.players[players_blinds[1]].nickname))
 					myTable.p_cursor(true)
-				print("====== {} ======\n".format(rounds_eng[round]))
+				print("====== {} ======".format(rounds_eng[round]))
 				show_making_bets_process(myTable)
-				new_bet = 0
 				new_bet = int(input("Enter a new bet (0 - fold): "))
 				show_desk(myTable)
+
 				if (new_bet != 0):
 					while (myTable.get_valid_bet(new_bet)[0] == 0 ):
 						new_bet = int(input(myTable.get_valid_bet(new_bet)[1]))
 					myTable.tableBet(myTable.p_cursor(), myTable.player_bet)
 					myTable.p_cursor(true)
+					print("======The bet is placed. Next player!!======")
+				else:
+					myTable.someone_fold(myTable.p_cursor())
+					if (myTable.p_cursor() >= len(myTable.players)):
+						myTable.player_cursor = 0
+					print("=======Oops ... Someone left the game ...=======")
+
+				while (myTable.bets_are_equal() != true):
+					show_making_bets_process(myTable)
+					if (myTable.all_ined):
+						answ = input("The previous player was all in. All you have to do is call or fold. call / fold? ")
+						if (myTable.call_fold(answ)):
+							myTable.tableBet(myTable.player_cursor,myTable.bets[(myTable.player_cursor - 1) % len(myTable.players)])
+							myTable.p_cursor(true)
+							print("You're all-in! ========")
+						else:
+							myTable.someone_fold(myTable.player_cursor)
+							if (myTable.player_cursor >= len(myTable.players)):
+								myTable.player_cursor = 0
+							print("Oops ... He didn't agree to put all-in ... ======")
+					else:
+						new_bet = int("Enter a new bet (0 - fold): ")
+
+						if (new_bet != 0):
+							while (myTable.get_valid_bet(new_bet)[1] == 0 ):
+								new_bet = int(input(myTable.get_valid_bet(new_bet)[1]))
+							myTable.tableBet(myTable.p_cursor(),myTable.player_bet)
+							myTable.p_cursor(true)
+							printf("======The bet is placed. Next player !!======")
+						else:
+							myTable.someone_fold(myTable.p_cursor())
+							if (myTable.p_cursor() >= len(myTable.players)):
+								myTable.player_cursor = 0
+							print("=======Oops ... Someone left the game ...=======")
+
+				if (len(myTable.players) == 1):
+					print("Defeated {}, all others folded".format(myTable.players[0].nickname))
+				print("End of the round. Common bank: {}".format myTable.calc_bank())
+				myTable.end_bet_round()
+
+			print("==========We open up!==========")
+			show_desk(myTable)
+			for i in range(len(myTable.players)):
+				if __name__ == "__main__": # та же ошибка, что и выше, ведь мне никто не собирается объяснять, что же блять не так
+					myCombo = Combo(myTable.desk,myTable.players[i])
+					player_hands = myTable.players[i].hand_cards()
+					print("Player: {}".format(myTable.players[i].nickname))
+					print("Hand cards: {} && {} ".format(player_hands[0].display(),player_hands[1]display()))
+					print("Combination: {}".format(myCombo.answer()))
+					print("==================================")
+			print("End of the game.")
+			return 0
