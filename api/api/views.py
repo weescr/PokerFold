@@ -64,6 +64,21 @@ def token_status(request,pk):
         return Response({'error_code': 1, 'message': 'invalid token'})
     return Response({'success':'token is active','owner':token.user.username})
 
+@api_view(['POST'])
+def token_list(request):
+    username = request.data.get('username')
+    passw = request.data.get('password')
+    u = authenticate(request,username=username, password=passw)
+    if not u:
+        return Response('Not Authenticated')
+    user_tokens = []
+    for token in Token.objects.all():
+        if token.user.username == u.username:
+            user_tokens.append(token.hash)
+    # todo: Если у него вообще нет токенов
+    answer = {'success': 'Token got', 'tokens': user_tokens}
+    return Response(answer)
+
 #####
 ################## IN-GAME
 #####

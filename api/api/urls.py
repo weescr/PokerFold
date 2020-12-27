@@ -11,6 +11,7 @@ urlpatterns = [
     path('token/get/', views.get_new_token, name = None), # POST
     path('token/<str:pk>/delete/',views.delete_token,name= None), # GET
     path('token/<str:pk>/status/',views.token_status,name= None), # GET
+    path('token/list/',views.token_list,name = None),
     #in-game all requests are POST
     path('game/<int:id>/',views.game_by_id,name= None), # GET
     path('game/create/',views.create_game, name = None),
