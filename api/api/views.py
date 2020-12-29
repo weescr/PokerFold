@@ -14,7 +14,11 @@ def random__hash():
 
 @api_view(['GET'])
 def index(request):
-    return Response("eto api mf")
+    f = open('api_methods.txt')
+    file = f.read().split('\n')
+    f.close()
+    obj = {'info': file}
+    return Response(obj)
 
 @api_view(['GET'])
 def list_users(request):
