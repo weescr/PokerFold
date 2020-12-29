@@ -1,0 +1,15 @@
+Users
+http://127.0.0.1:8000/api/users/
+
+Game
+http://127.0.0.1:8000/api/game/list/
+http://127.0.0.1:8000/api/<id>/
+http://127.0.0.1:8000/api/game/create/
+http://127.0.0.1:8000/api/game/join/
+http://127.0.0.1:8000/api/game/leave/
+
+Tokens
+http://127.0.0.1:8000/api/token/list/
+http://127.0.0.1:8000/api/token/get/
+http://127.0.0.1:8000/api/token/<str>/delete/
+http://127.0.0.1:8000/api/token/status/
