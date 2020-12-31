@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title%}{{user.name}}{% endblock %}
+
+{% block content%}
+  	<h1>{{user.username}}</h1>
+  	{% if user.profile.online == True %}
+		<h4>online</h4>
+		{% else %} <h2>offline</h2>
+	{% endif %}
+	{% if user.profile.sex == False %}
+		<h2>woman</h2>
+		{% else %} <h2>man</h2>
+	{% endif %}
+	<h2>{{user.profile.money}} coins</h2>
+{% endblock %}
