@@ -2,7 +2,7 @@
 
 import server
 
-myserver = server.init(5)
+myserver = server.Game(5)
 players = [
 	['nikita', 150],
 	['ulyana', 300],
@@ -11,12 +11,12 @@ players = [
 ]
 errors = myserver.register(players)
 if errors:
-	print(errors.as_json())
+	print(errors)
 	exit()
 
 dealer_player = myserver.make_dealer()
 myserver.make_zero_bets()
-hand_cards = myserver.deal_hands_cards()
+hand_cards = myserver.get_hands_cards()
 #[			suit,value
 #	['nikita', [3,5], [1,1]],
 #	['ulyana', [1,1], [1,2]],

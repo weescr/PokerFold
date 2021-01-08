@@ -142,22 +142,29 @@ class Table:
 	def shuffle_the_deck(self):
 		random.shuffle(self.deck)
 
-	def join_the_game(self, argnick, argstack):
-		self.players.append(Player(argnick,argstack))
+	def join_the_game(self, players: list):
+		errors = []
+		for player in players:
+			if player[1] < self.bb:
+				error_log.append([player[0],'Stack < bb'])
+			self.players.append(Player(player[0],player[1]))
+		return erros
 
 	def deal_hand_cards(self):
+		log = []
 		for i in range(len(self.players)):
 			new_hand_cards = []
-			new_hand_cards.append(self.deck.pop())
-			new_hand_cards.append(self.deck.pop())
-			self.players[i].take_2_cards(new_hand_cards)
+			fitst = self.deck.pop()
+			second = self.deck.pop()
+			log.append([self.players[i].name, [first.suit,first.value], [second.suit,second.value]])
+			#self.players[i].take_2_cards(new_hand_cards)
 			self.players[i].with_cards = True
+		return log
 
 	def put_cards_on_desk(self, round):
 		if (round == 1):
 			for i in range(3):
 				self.desk.append(self.deck.pop())
-				
 		elif (round != 0):
 			self.desk.append(self.deck.pop())
 
@@ -240,8 +247,12 @@ class Table:
 
 class Game(Table, Combo, Card, Player):
 	
-	def __init__(self):
-		pass
+	__slots__ = ('myTable')
+
+	def __init__(self,sbarg):
+		self.sb = sbarg
+		self.myTable = Table(sbarg)
+
 
 	def show_making_bets_process(self, table_obj):
 		print( "Player: {} ".format(table_obj.players[table_obj.player_cursor].nickname))
@@ -262,31 +273,23 @@ class Game(Table, Combo, Card, Player):
 			for i in table_obj.desk:
 				print("{} | ".format(i.display()))
 
-	def players_register(self, table_obj):
-		nplayers = int(input("How many players are playing today? "))
-		for i in range(nplayers):
-			temp_nick = input("New player name: ")
-			while(list(table_obj.get_blinds())[1] > temp_stack):
-				temp_stack = int(input("New player stack: "))
-				if (list(table_obj.get_blinds())[1] > temp_stack):
-					print("Your stack is too small")
-			print("Registered!")
-			table_obj.join_the_game(temp_nick,temp_stack)
-		return table_obj
+	def register(self, player_models: list):
+		errors = self.myTable.join_the_game(players)
+		#if error then player denied
+		return errors
+	
+	def make_dealer(self) -> Player:
+		self.myTable.make_dealer()
+		return self.myTable.dealer
+	
+	def make_zero_bets(self):
+		self.myTable.make_zero_bets()
+
+	def get_hands_cards(self):
+		self.myTable.deal_hand_cards()
 
 	def main(self):
-		print("PokerFold (v. 0.1)")
-		print("==========Registration of new players=========")
-		print("Blinds are: {} / {}".format(list(preTable.get_blinds())[0], list(preTable.get_blinds())[1]))
-
-		myTable =  players_register(preTable)
-		print("=======Registration of new players is over======")
-		myTable.make_dealer()
-		myTable.make_zero_bets()
-		myTable.deal_hand_cards()
-
 		print("Button: {}".format(myTable.dealer.nickname))
-
 		for round in range(4):
 			myTable.put_cards_on_desk(round)
 			if (round == 0):
