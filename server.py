@@ -165,8 +165,11 @@ class Table:
 		if (round == 1):
 			for i in range(3):
 				self.desk.append(self.deck.pop())
+			return desk
 		elif (round != 0):
 			self.desk.append(self.deck.pop())
+			d = desk[len(desk)-1]
+			return d
 
 	def make_dealer(self):
 		self.dealer = self.players.index(random.choice(self.players))
@@ -185,7 +188,7 @@ class Table:
 		self.bets[bbp] = self.bb
 		self.lastBet = self.bb
 		self.player_cursor = bbp
-		return sbp,bbp
+		return [self.players[sbp].nickname , self.players[bbp].nickname]
 
 	def calc_bank(self):
 		return sum(self.bets) + self.folded_score
@@ -287,15 +290,15 @@ class Game(Table, Combo, Card, Player):
 
 	def get_hands_cards(self):
 		self.myTable.deal_hand_cards()
+		
+	def get_desk_cards(self, round)
+		self.myTable.put_cards_on_desk(round)
+		
+	def need_blinds(self):
+		self.myTable.bet_blinds()
 
 	def main(self):
-		print("Button: {}".format(myTable.dealer.nickname))
-		for round in range(4):
-			myTable.put_cards_on_desk(round)
-			if (round == 0):
-				players_blinds = list(myTable.bet_blinds())
-				print("SB / BB: {} & {}".format(myTable.players[players_blinds[0]].nickname, myTable.players[players_blinds[1]].nickname))
-				myTable.p_cursor(true)
+			myTable.p_cursor(true)
 			print("====== {} ======".format(rounds_eng[round]))
 			show_making_bets_process(myTable)
 			new_bet = int(input("Enter a new bet (0 - fold): "))
