@@ -163,13 +163,15 @@ class Table:
 
 	def put_cards_on_desk(self, round):
 		if (round == 1):
+			d = '|'
 			for i in range(3):
-				self.desk.append(self.deck.pop())
-			return desk
+				last = self.deck.pop()
+				self.desk.append(last)
+				d += "{} | ".format(last)
 		elif (round != 0):
 			self.desk.append(self.deck.pop())
-			d = desk[len(desk)-1]
-			return d
+			d = "| {} | ".format(desk[len(desk)-1])
+		return d
 
 	def make_dealer(self):
 		self.dealer = self.players.index(random.choice(self.players))
@@ -258,23 +260,27 @@ class Game(Table, Combo, Card, Player):
 
 
 	def show_making_bets_process(self, table_obj):
-		print( "Player: {} ".format(table_obj.players[table_obj.player_cursor].nickname))
+		output = ["","","","",""]
+		output[0] = "Player: {} ".format(table_obj.players[table_obj.player_cursor].nickname) 
 
 		if (table_obj.players[table_obj.player_cursor].with_cards):
 			player_cards = table_obj.players[table_obj.player_cursor].hand_cards
-			print("Your cards: {} && {} ".format(player_cards[0].display(),player_cards[1].display()))
+			output[1] = "Your cards: {} && {} ".format(player_cards[0].display(),player_cards[1].display())
 
-		print("Last Bet: {} ".format(table_obj.lastBet))
-		print("Stack: {} ".format(table_obj.players[table_obj.player_cursor].stack))
+		output[2] = "Last Bet: {} ".format(table_obj.lastBet)
+		output[3] = "Stack: {} ".format(table_obj.players[table_obj.player_cursor].stack)
 
 		if (table_obj.bets[table_obj.p_cursor()] != 0):
-			print("Personal bank: {} ".format(table_obj.bets[obj.player_cursor]))
+			output[4] = "Personal bank: {} ".format(table_obj.bets[obj.player_cursor])
+
+		return output
 
 	def show_desk(self, table_obj):
-		print("|")
+		d = "|"
 		if len(table_obj.desk) != 0:
 			for i in table_obj.desk:
-				print("{} | ".format(i.display()))
+				d += "{} | ".format(i.display())
+		return d
 
 	def register(self, player_models: list):
 		errors = self.myTable.join_the_game(players)
@@ -297,12 +303,19 @@ class Game(Table, Combo, Card, Player):
 	def need_blinds(self):
 		self.myTable.bet_blinds()
 
+	def get_new_things(self):
+		show_making_bets_process(myTable)
+
+	def desk_everywhere(self):
+		show_desk(myTable)
+
+	def in_game_get_bet_from_player(self):
+
+
 	def main(self):
 			myTable.p_cursor(true)
 			print("====== {} ======".format(rounds_eng[round]))
-			show_making_bets_process(myTable)
 			new_bet = int(input("Enter a new bet (0 - fold): "))
-			show_desk(myTable)
 
 			if (new_bet != 0):
 				while (myTable.get_valid_bet(new_bet)[0] == 0 ):
