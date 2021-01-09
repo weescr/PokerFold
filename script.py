@@ -32,9 +32,9 @@ for round in myserver.rounds:
 	answer = myserver.need_blinds(): #returns 2nicks
 	if answer:	
 		game_alert('sb and bb:',answer)
-	thinds = myserver.get_new_things() #show_makeing_process
+	things = myserver.get_new_things() #show_making_process
 	game_alert('things:',things)
-	game_alert('desk:',myserver.desk_everyware()) #show_desk
+	game_alert('desk:',myserver.desk_everywhere()) #show_desk
 	game_alert('i need a bet!')
 #errors true
 	errors = True
