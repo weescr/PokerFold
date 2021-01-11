@@ -15,8 +15,8 @@ if errors:
 	exit()
 
 dealer_player = myserver.make_dealer()
-myserver.make_zero_bets()
-hand_cards = myserver.get_hands_cards()
+myserver.myTable.make_zero_bets()
+hand_cards = myserver.myTable.deal_hand_cards()
 #[			suit,value
 #	['nikita', [3,5], [1,1]],
 #	['ulyana', [1,1], [1,2]],
@@ -29,7 +29,7 @@ game_alert('Button:',dealer_player.name)
 for round in myserver.rounds:
 	new_cards_for_desk = myserver.get_desk_cards(round)
 	game_alert('cards on desk now:',new_cards_for_desk)
-	answer = myserver.need_blinds(): #returns 2nicks
+	answer = myserver.myTable.bet_blinds(): #returns 2nicks
 	if answer:	
 		game_alert('sb and bb:',answer)
 	things = myserver.get_new_things() #show_making_process
@@ -44,31 +44,30 @@ for round in myserver.rounds:
 		game_alert(errors) #players folded is error
 		errors = in_game_get_bet_from_player() 
 
-	while myserver.bets_are_equal() != True:
-		thinds = myserver.get_new_things()
-		game_alert('things:',things)
-		if myserver.all_ined:
-			game_alert('The previous player was allined. And u?')
-			if myserver.call_fold(in_game_vvod()):
+	while myserver.myTable.bets_are_equal() != True:
+		things = myserver.get_new_things()
+		game_alert('things:')
+		for i in range(5):
+			game_alert(things[i])
+		if myserver.myTable.all_ined:
+			if myserver.call_fold(in_game_input('The previous player was allined. And u?')):
 				game_alert(players[myserver.myTable.player_cursor],', u r allined!')
 				myserver.tableBet() #no args like player_cursor 'cause method must now it
 				#myserver.change_cursor() todo: method tableBet must do it
 			else:
-				myserver.folded()
+				myserver.myTable.someone_fold(myTable.player_cursor)
 				game_alert(players[myserver.myTable.player_cursor],"u r folded! u can't allined(((")
 		else:
-			game_alert('ok. bet. (0 - fold)')
 			new_bet = in_game_get_bet_from_player()
-			if new_bet: #0 - false; 1+ - zero (Python)
-				errors = myserver.bet_handler(new_bet)
+			if new_bet: #0 - false; 1+ - true (Python)
+				errors = myserver.bet_handler(new_bet) #this one won't work. discuss and fix!
 				if errors:
-					game_alert(errors)
 					while errors != None:
+						game_alert(errors)
 						new_bet = in_game_get_bet_from_player()
 						errors = myserver.bet_handler(new_bet)
-						game_alert(errors)
 				myserver.tableBet(new_bet)
-				#myserver.change_cursor()
+				myserver.myTable.change_cursor()
 				game_alert('This bet is placed.')
 			else:
 				myserver.folded() #if cursor > len(players) must do method folded

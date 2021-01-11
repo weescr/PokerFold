@@ -207,6 +207,7 @@ class Table:
 		self.lastBet = self.bets[player_i]
 		if self.players[self.player_cursor].stack == 0:
 			self.all_in = True
+		#change cursor
 		
 	def someone_fold(self,player_i):
 		self.folded_score += self.bets[player_i]
@@ -215,6 +216,12 @@ class Table:
 
 	def p_cursor(self):
 		self.player_cursor = (self.player_cursor + 1) % len(self.players)
+
+	def change_cursor(self):
+		player_cursor += 1
+		if (self.player_cursor >= len(self.players)):
+			self.player_cursor = 0
+			self.someone_fold()
 		
 
 	def call_fold(self,p_answ):
@@ -287,18 +294,9 @@ class Game(Table, Combo, Card, Player):
 	def make_dealer(self) -> Player:
 		self.myTable.make_dealer()
 		return self.myTable.dealer
-	
-	def make_zero_bets(self):
-		self.myTable.make_zero_bets()
-
-	def get_hands_cards(self):
-		self.myTable.deal_hand_cards()
 		
 	def get_desk_cards(self, round)
 		self.myTable.put_cards_on_desk(round)
-		
-	def need_blinds(self):
-		self.myTable.bet_blinds()
 
 	def get_new_things(self):
 		show_making_bets_process(myTable)
@@ -319,39 +317,18 @@ class Game(Table, Combo, Card, Player):
 			return("Someone left the game...")
 
 	def in_game_get_bet_from_player(self, cursor):
-		new_bet = int(input("Enter a new bet (0 - fold): ")) #вывод для player_cursor (how it should works?)
+		new_bet = int(in_game_input("Enter a new bet (0 - fold): ")) #вывод для player_cursor (how it should works?)
 		bet_handler(new_bet)
 
+	def tableBet():
+		self.myTable.tableBet(myTable.player_cursor,myTable.bets[(myTable.player_cursor - 1) % len(myTable.players)])
+
+	def folded():
+		self.myTable.someone_fold(myTable.player_cursor)
 
 	def main(self):
 			myTable.p_cursor()
 			print("====== {} ======".format(rounds_eng[round]))
-			while (myTable.bets_are_equal() != true):
-				if (myTable.all_ined):
-					answ = input("The previous player was all in. All you have to do is call or fold. call / fold? ")
-					if (myTable.call_fold(answ)):
-						myTable.tableBet(myTable.player_cursor,myTable.bets[(myTable.player_cursor - 1) % len(myTable.players)])
-						myTable.p_cursor()
-						print("You're all-in! ========")
-					else:
-						myTable.someone_fold(myTable.player_cursor)
-						if (myTable.player_cursor >= len(myTable.players)):
-							myTable.player_cursor = 0
-						print("Oops ... He didn't agree to put all-in ... ======")
-				else:
-					new_bet = int("Enter a new bet (0 - fold): ")
-
-					if (new_bet != 0):
-						while (myTable.get_valid_bet(new_bet)[1] == 0 ):
-							new_bet = int(input(myTable.get_valid_bet(new_bet)[1]))
-						myTable.tableBet(myTable.player_cursor,myTable.player_bet)
-						myTable.p_cursor()
-						printf("======The bet is placed. Next player !!======")
-					else:
-						myTable.someone_fold(myTable.player_cursor)
-						if (myTable.player_cursor >= len(myTable.players)):
-							myTable.player_cursor = 0
-						print("=======Oops ... Someone left the game ...=======")
 
 			if (len(myTable.players) == 1):
 				print("Defeated {}, all others folded".format(myTable.players[0].nickname))
